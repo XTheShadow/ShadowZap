@@ -1,6 +1,13 @@
 from fastapi import FastAPI
-import univcorn
+import uvicorn
+from pydantic import BaseModel # This library is used to validate the incoming data
 
+# Creating a class to validate the incoming data
+class ScanRequest(BaseModel):
+    tartget_url: str  # Defining the type of the url data
+    scan_type: str = "basic"  # Also the scan type being a string but setting the default type to "basic"
+
+# Setting the application
 app = FastAPI()
 
 # Testing api
@@ -8,3 +15,18 @@ app = FastAPI()
 def test():
     return "The API is working"
 
+
+# Endpoint to start a new scan
+@app.post("/scan")
+# Async functions are used for coroutines so it can be suspended and resumed
+async def start_Scan(scan_request: ScanRequest): # An object "scan_request" from the "ScanRequest" class was created
+    return{
+        "status": "Scan initiated",
+        "target": scan_request.tartget_url,  # Accessing the tartget_url from the scan_request object
+        "scan_type": scan_request.scan_type  # Accessing the scan_type from the scan_request object
+    }
+
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
