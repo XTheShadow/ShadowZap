@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from pydantic import BaseModel # This library is used to validate the incoming data
+from pydantic import BaseModel, AnyHttpUrl # This library is used to validate the incoming data
 from enum import Enum          # A python special class that represents a fixed set of values or options
 
 # A class defining the fixed terms or options so no invalid terms are used
@@ -13,7 +13,7 @@ class ScanType(Enum):
 
 # Creating a class to validate the incoming data
 class ScanRequest(BaseModel):
-    tartget_url: HttpUrl      # Changed the type to be URL to ensure valid urls only
+    target_url: AnyHttpUrl      # Changed the type to be URL to ensure valid urls only
     scan_type: ScanType = ScanType.BASIC  # Changed to use the "ScanType" class so there is no invalid entries
     ports: str = "1-1000"   # Defining the default port range
     timeout: int = 60       # Defining a timout after 60 seconds of no response
@@ -33,7 +33,7 @@ def test():
 async def start_Scan(scan_request: ScanRequest): # An object "scan_request" from the "ScanRequest" class was created
     return{
         "status": "Scan initiated",
-        "target": scan_request.tartget_url,  # Accessing the tartget_url from the scan_request object
+        "target": scan_request.target_url,  # Accessing the target_url from the scan_request object
         "scan_type": scan_request.scan_type  # Accessing the scan_type from the scan_request object
     }
 
