@@ -13,8 +13,10 @@ class ScanType(Enum):
 
 # Creating a class to validate the incoming data
 class ScanRequest(BaseModel):
-    tartget_url: str  # Defining the type of the url data
-    scan_type: str = "basic"  # Also the scan type being a string but setting the default type to "basic"
+    tartget_url: HttpUrl      # Changed the type to be URL to ensure valid urls only
+    scan_type: ScanType = ScanType.BASIC  # Changed to use the "ScanType" class so there is no invalid entries
+    ports: str = "1-1000"   # Defining the default port range
+    timeout: int = 60       # Defining a timout after 60 seconds of no response
 
 # Setting the application
 app = FastAPI()
