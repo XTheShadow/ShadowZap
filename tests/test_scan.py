@@ -9,7 +9,7 @@ client = TestClient(app)
 def test_scan_endpoint():
     # Test data
     test_data = {
-        "tartget_url": "https://example.com",
+        "target_url": "https://example.com",
         "scan_type": "basic"
     }
     
@@ -22,14 +22,14 @@ def test_scan_endpoint():
     # Assert response contains expected data
     data = response.json()
     assert data["status"] == "Scan initiated"
-    assert data["target"] == test_data["tartget_url"]
+    assert data["target"] == test_data["target_url"]
     assert data["scan_type"] == test_data["scan_type"]
 
 # A function to test the default case 
 def test_scan_endpoint_default_scan_type():
     # Test data with only target URL(The default case)
     test_data = {
-        "tartget_url": "https://example.com"
+        "target_url": "https://example.com"
     }
     
     # Send POST request to /scan endpoint
@@ -41,5 +41,5 @@ def test_scan_endpoint_default_scan_type():
     # Assert response contains expected data with default scan type
     data = response.json()
     assert data["status"] == "Scan initiated"
-    assert data["target"] == test_data["tartget_url"]
+    assert data["target"] == test_data["target_url"]
     assert data["scan_type"] == "basic"  # Default value from ScanRequest class
