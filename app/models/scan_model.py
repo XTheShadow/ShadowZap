@@ -5,8 +5,8 @@ from enum import Enum          # A python special class that represents a fixed 
 class ScanType(Enum):
     BASIC = "basic"
     FULL = "full"
-    PORT_SCAN = "port_scan"
-    VULNERABILITY = "vulnerability"
+    API_SCAN = "api_scan"
+    SPIDER_SCAN = "spider_scan"
 
 # Creating a class to validate the incoming data
 class ScanRequest(BaseModel):
