@@ -23,7 +23,7 @@ async def start_Scan(scan_request: ScanRequest): # An object "scan_request" from
     )
     
     return{
-        "status": "Scan initiated!",
+        "status": "Scan initiated",
         "task_id": str(task.id), # returning the task id for better tracking
         "target": scan_request.target_url,  # Accessing the target_url from the scan_request object
         "scan_type": scan_request.scan_type  # Accessing the scan_type from the scan_request object
