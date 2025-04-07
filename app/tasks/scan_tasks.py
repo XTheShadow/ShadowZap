@@ -29,6 +29,12 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") # ".strftime" formats the timestamp to a string
             report_name = f"zap_report_{timestamp}"
 
+            # Creating a folder for the reports for better organization
+            reports_folder = os.path.join(REPORT_DIR, f"scan_{timestamp}")
+            os.makedirs(reports_folder, exist_ok=True)
+            os.chmod(reports_folder, 0o777)   # Setting proper permissions for the reports_folder
+ 
+
             # Initalizing the command for the ZAP container(Basic scan)
             basicScan_command = [
                 "zap-baseline.py",
@@ -41,14 +47,12 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             ]
             
             # Initializing and running the OWASP ZAP container for scanning
-            os.chmod(REPORT_DIR, 0o777)   # Setting proper permissions for the reports directory
-
             container = client.containers.run(
                 ZAP_IMAGE,  # The Docker image name holder variable
                 command=basicScan_command,  # The command to run within the container(I defined it earlier)
                 detach=True,  # Runs container in background to avoid blocking
                 volumes={
-                    REPORT_DIR: {'bind': '/zap/wrk', 'mode': 'rw'}  # Mounting the report directory inside the container
+                    reports_folder: {'bind': '/zap/wrk', 'mode': 'rw'}  # Mounting the report directory inside the container
                 },
                 working_dir='/zap/wrk',  # Setting the working directory inside the container
                 remove=True,  # Cleans up container after completion to save resources
@@ -64,9 +68,16 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             scan_status = "Completed" if result["StatusCode"] == 0 else "Failed"
 
             # Verifying the report generation and setting paths for access
-            html_report_path = os.path.join(REPORT_DIR, f"{report_name}.html") # Path to the HTML report
-            xml_report_path = os.path.join(REPORT_DIR, f"{report_name}.xml") # Path to the XML report
-            json_report_path = os.path.join(REPORT_DIR, f"{report_name}.json") # Path to the JSON report
+            report_paths = {
+                'html': os.path.join(reports_folder, f'{report_name}.html'),
+                'xml': os.path.join(reports_folder, f'{report_name}.xml'),
+                'json': os.path.join(reports_folder, f'{report_name}.json')
+            }
+            
+            # Verifying if all the reports exist
+            for report_type, path in report_paths.items():
+                if not os.path.exists(path):
+                    print(f"Warning: {report_type} report not generated at {path}")
             
             scan_output = {
                 "status": scan_status,
@@ -75,9 +86,8 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
                 "exit_code": result["StatusCode"],
                 "logs": logs,
                 "reports": {
-                    "html": html_report_path if os.path.exists(html_report_path) else None,
-                    "xml": xml_report_path if os.path.exists(xml_report_path) else None,
-                    "json": json_report_path if os.path.exists(json_report_path) else None
+                    report_type: path if os.path.exists(path) else None
+                    for report_type, path in report_paths.items()
                 }
             }
 
