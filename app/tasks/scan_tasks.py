@@ -30,7 +30,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             report_name = f"zap_report_{timestamp}"
 
             # Creating a folder for the reports for better organization
-            reports_folder = os.path.join(REPORT_DIR, f"scan_{timestamp}")
+            reports_folder = os.path.join(REPORT_DIR, f"{scan_type}-scan_{timestamp}")
             os.makedirs(reports_folder, exist_ok=True)
             os.chmod(reports_folder, 0o777)   # Setting proper permissions for the reports_folder
  
