@@ -140,6 +140,20 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
         ]
         return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
 
+    elif scan_type == ScanType.API_SCAN:
+        # Initializing the command for the ZAP container(API scan)
+        scan_command = [
+            "zap-api-scan.py",
+            "-t", target_url,
+            "-I",  # Internal ZAP daemon
+            "-d",  # Debug
+            "-f", "openapi",  # Telling ZAP that the API format is openapi(Swagger)
+            "-r", f"{report_name}.html",
+            "-x", f"{report_name}.xml",
+            "-J", f"{report_name}.json"
+        ]
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+
     return {
         "status": "Invalid scan type",
         "target": target_url,
