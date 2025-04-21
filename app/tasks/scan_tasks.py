@@ -21,6 +21,7 @@ os.makedirs(REPORT_DIR, exist_ok=True)
 
 # The base shared stuff among all the scans
 def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List[str], reports_folder: str, report_name: str):
+    # Initializing the Docker client
     client = docker.from_env()
 
     try:
@@ -60,7 +61,7 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
             scan_output = {
                 "status": scan_status,
                 "target": target_url,
-                "scan_type": scan_type,
+                "scan_type": scan_type.value, # Using the value of the enum instead of the enum itself
                 "exit_code": result["StatusCode"],
                 "logs": logs,
                 "reports": {
@@ -90,17 +91,21 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
 
 @celery.task
 def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
+    # Converting scan_type to ScanType enum if its a string(It's passed as a string for some reason)
+    if isinstance(scan_type, str):
+        scan_type = ScanType(scan_type)
+
     # Generating a unique report name using current timestamp to avoid overwriting
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") # ".strftime" formats the timestamp to a string
     report_name = f"zap_report_{timestamp}"
 
     # Creating a folder for the reports for better organization
-    reports_folder = os.path.join(REPORT_DIR, f"{scan_type}-scan_{timestamp}")
+    reports_folder = os.path.join(REPORT_DIR, f"{scan_type.value}-scan_{timestamp}")
     os.makedirs(reports_folder, exist_ok=True)
     os.chmod(reports_folder, 0o777)   # Setting proper permissions for the reports_folder
 
     # Running basic scan
-    if scan_type == "basic":
+    if scan_type == ScanType.BASIC: # Using the ScanType enum to access the values instead of hardcoding the strings
         # Initializing the command for the ZAP container(Basic scan)
         scan_command = [
             "zap-baseline.py",
@@ -113,7 +118,28 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
         ]
         return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
 
-    # Handling invalid scan types
+    elif scan_type == ScanType.FULL:
+        # Initializing the command for the ZAP container(Full scan with enhanced capabilities)
+        scan_command = [
+            "zap-full-scan.py",
+            "-t", target_url,
+            "-I",  # Internal ZAP daemon
+            "-d",  # Debug
+            "-j",  # AJAX Spider
+            "-m", "5",  # Spider time, 5 minutes for deeper crawling
+            "-T", "10",  # Scan time, 10 minutes for more thorough testing
+            "-z", "sqli,xss,xxe",  # Enhanced attack mode with SQL, XSS,and XXE testing
+            "--hook=zapHooks.py",  # Support for custom hooks if available
+            "--script-timeout", "120",  # Increased script timeout for complex scripts
+            "--ajax-timeout", "60",  # Increased AJAX timeout for complex applications
+            "--scan-delay", "1000",  # Added a delay between requests to avoid overwhelming the target
+            "--recursive",  # Enables recursive scanning for deeper analysis
+            "-r", f"{report_name}.html",
+            "-x", f"{report_name}.xml",
+            "-J", f"{report_name}.json"
+        ]
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+
     return {
         "status": "Invalid scan type",
         "target": target_url,
