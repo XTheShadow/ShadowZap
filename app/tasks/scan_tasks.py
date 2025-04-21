@@ -154,6 +154,20 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
         ]
         return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
 
+    elif scan_type == ScanType.SPIDER_SCAN:
+        # Initializing the command for the ZAP container(Spider scan)
+        scan_command = [
+            "zap-spider-scan.py",
+            "-t", target_url,
+            "-I",  # Internal ZAP daemon
+            "-d",  # Debug
+            "-m", "5",  # Spider time, 5 minutes for deeper crawling
+            "-r", f"{report_name}.html",
+            "-x", f"{report_name}.xml",
+            "-J", f"{report_name}.json" 
+        ]
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+
     return {
         "status": "Invalid scan type",
         "target": target_url,
