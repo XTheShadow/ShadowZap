@@ -7,6 +7,18 @@ class ScanType(Enum):
     FULL = "full"
     API_SCAN = "api_scan"
     SPIDER_SCAN = "spider_scan"
+    
+# Report type options
+class ReportType(Enum):
+    NORMAL = "normal"
+    ENHANCED = "enhanced"
+    
+# Report format options
+class ReportFormat(Enum):
+    PDF = "pdf"
+    HTML = "html"
+    XML = "xml"
+    JSON = "json"
 
 # Creating a class to validate the incoming data
 class ScanRequest(BaseModel):
@@ -14,6 +26,8 @@ class ScanRequest(BaseModel):
     scan_type: ScanType = ScanType.BASIC  # Changed to use the "ScanType" class so there is no invalid entries
     ports: str = "1-1000"   # Defining the default port range
     timeout: int = 60       # Defining a timout after 60 seconds of no response
+    report_type: ReportType = ReportType.NORMAL  # Type of report (normal or enhanced with AI analysis)
+    report_format: ReportFormat = ReportFormat.PDF  # Format of the report (HTML, XML, or JSON)
 
     @validator('target_url') #This decorator is used to validate the incoming url
     def normalize_url(cls, v): # This is a method to normalize the url, cls is used to access the class itself and v is the value(URL)
