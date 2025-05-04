@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET # A library used to parse XML filews
 from groq import Groq
-from typing import List, Dict, Any # This library is used to define types for the functions
+from typing import List, Dict, Any, Optional # This library is used to define types for the functions
 
 # Initalizing the groq client
 api_key = os.getenv('LlIMA_API_KEY')
@@ -116,3 +116,11 @@ Here is the extracted vulnerability data from the ZAP scan:
         prompt += "\n\nPlease return the output as markdown suitable for use on a webpage or as a downlaodable PDF."
 
     return prompt
+
+# Helper function to safely extract the text from the XML elements
+def get_element_text(element, tag_name: str) -> str:
+    child = element.find(tag_name)
+    if child is not None and child.text:
+        return child.text
+    else:
+        return ""
