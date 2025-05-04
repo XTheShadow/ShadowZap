@@ -1,7 +1,7 @@
 # This file is for handling the Celery tasks.
 from ..services.celery_service import celery # Importing the celery instance from celery_service
 from pydantic import AnyHttpUrl
-from ..models.scan_model import ScanType
+from ..models.scan_model import ScanType, ReportType, ReportFormat
 from typing import List # A pyton library that introduces a new data type called List
 import docker
 import datetime
@@ -20,7 +20,7 @@ REPORT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file
 os.makedirs(REPORT_DIR, exist_ok=True)
 
 # The base shared stuff among all the scans
-def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List[str], reports_folder: str, report_name: str):
+def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List[str], reports_folder: str, report_name: str, report_type: ReportType, report_format: ReportFormat):
     # Initializing the Docker client
     client = docker.from_env()
 
@@ -90,10 +90,18 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
         }
 
 @celery.task
-def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
+def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportType, report_format: ReportFormat):
     # Converting scan_type to ScanType enum if its a string(It's passed as a string for some reason)
     if isinstance(scan_type, str):
         scan_type = ScanType(scan_type)
+        
+    # Converting report_type and report_format to their respective enums if they are strings
+    if isinstance(report_type, str):
+        report_type = ReportType(report_type)
+
+    # Coverting report_format to ReportFormat enum if its a string to avoid the bug happened in the scan_type case    
+    if isinstance(report_format, str):
+        report_format = ReportFormat(report_format)
 
     # Generating a unique report name using current timestamp to avoid overwriting
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") # ".strftime" formats the timestamp to a string
@@ -116,7 +124,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             "-x", f"{report_name}.xml",
             "-J", f"{report_name}.json"
         ]
-        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
     elif scan_type == ScanType.FULL:
         # Initializing the command for the ZAP container(Full scan with enhanced capabilities)
@@ -138,7 +146,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             "-x", f"{report_name}.xml",
             "-J", f"{report_name}.json"
         ]
-        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
     elif scan_type == ScanType.API_SCAN:
         # Initializing the command for the ZAP container(API scan)
@@ -152,7 +160,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             "-x", f"{report_name}.xml",
             "-J", f"{report_name}.json"
         ]
-        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
     elif scan_type == ScanType.SPIDER_SCAN:
         # Initializing the command for the ZAP container(Spider scan)
@@ -166,7 +174,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType):
             "-x", f"{report_name}.xml",
             "-J", f"{report_name}.json" 
         ]
-        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name)
+        return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
     return {
         "status": "Invalid scan type",
