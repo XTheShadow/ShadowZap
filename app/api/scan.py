@@ -19,7 +19,9 @@ async def start_Scan(scan_request: ScanRequest): # An object "scan_request" from
     
     task = run_scan.delay(
         str(scan_request.target_url), # Here the target_url is converted to a string for celery
-        scan_request.scan_type.value  # This is to get the scan type value from the ScanType class(Enum)
+        scan_request.scan_type.value,  # This is to get the scan type value from the ScanType class(Enum)
+        scan_request.report_type.value,  # This is to get the report type value from the ReportType class(Enum)
+        scan_request.report_format.value  # To get the report format value from the ReportFormat class(Enum)
     )
     
     return{
