@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initalizing the groq client
-api_key = os.getenv('LlAMA_API_KEY')
+api_key = os.getenv('Llama_API_KEY')  # Fixed case to match .env file
 client = Groq(api_key=api_key)
 
 # A function to analyze the vulnerabilities in the XML report
