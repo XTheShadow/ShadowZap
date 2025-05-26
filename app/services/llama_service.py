@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initalizing the groq client
-api_key = os.getenv('Llama_API_KEY')  # Fixed case to match .env file
+api_key = os.getenv('Llama_API_KEY')
 client = Groq(api_key=api_key)
 
 # A function to analyze the vulnerabilities in the XML report
@@ -96,6 +96,7 @@ def format_vulnerability_prompt(vulnerabilities: list, xml_report: str) -> str:
    - Recommended Actions
    - Glossary
 4. Style and format it in a modern, minimal report design, similar to a consulting security assessment (white-label report).
+5. Make sure to mantain the same urls as in the original report.
 
 **Context for this Project:**
 This report is part of an automated penetration testing tool that integrates OWASP ZAP with AI to generate more digestible security reports. The goal is to help non-experts understand vulnerabilities and fix them.
@@ -130,7 +131,7 @@ Here is the extracted vulnerability data from the ZAP scan:
         if i < len(vulnerabilities):
             prompt += "\n---\n"
 
-        prompt += "\n\nPlease return the output as markdown suitable for use on a webpage or as a downlaodable PDF."
+        prompt += "\n\nPlease return the output as markdown suitable for use on a webpage or as a downloadable PDF. Format your response as clean markdown without any additional commentary."
 
     return prompt
 
