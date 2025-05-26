@@ -1,10 +1,20 @@
 from fastapi import FastAPI
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware # Importing the CORSMiddleware class
 from ..tasks.scan_tasks import run_scan # Importing the run_scan function from the scan_tasks.py file
 from ..models.scan_model import ScanRequest # Importing the ScanRequest class from the scan_model.py file
 
 # Setting the application
 app = FastAPI()
+
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins in development
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods just to make sure I dont get an error due to CORS
+    allow_headers=["*"],
+)
 
 # Testing api
 @app.get("/")
