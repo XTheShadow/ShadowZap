@@ -43,7 +43,7 @@ def analyze_vulnerabilities(xml_report: str) -> Dict[str, Any]: # This means tha
         prompt = format_vulnerability_prompt(vulnerabilities, xml_report)
         # Sending the prompt to the llama model
         completion = client.chat.completions.create(
-            model = "meta-llama/llama-4-scout-17b-16e-instruct", # This is the model used
+            model = "meta-llama/llama-4-maverick-17b-128e-instruct", # This is the model used
             messages=[
                 {
                     "role": "user",
