@@ -70,12 +70,12 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                     os.chmod(output_dir, 0o777)  # Ensure proper permissions
                     
                     # Run AI analysis
-                    base_name = os.path.splitext(os.path.basename(report_paths['xml']))[0]
-                    ai_result = analyze_vulnerabilities(report_paths['xml'], base_name, output_dir)
+                    ai_result = analyze_vulnerabilities(report_paths['xml']) #Pssing the XML report path to the AI analysis function
                     if ai_result and ai_result.get("success"):
                         print(f"AI analysis completed successfully for {report_paths['xml']}")
                         
                         # Get the markdown report path
+                        base_name = os.path.splitext(os.path.basename(report_paths['xml']))[0] # Extracting the base name of the report
                         md_report_name = f"{base_name}.md"
                         md_report_path = os.path.join(output_dir, md_report_name) 
                         
@@ -95,7 +95,9 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
             scan_output = {
                 "status": scan_status,
                 "target": target_url,
-                "scan_type": scan_type.value, # Using the value of the enum instead of the enum itself
+                "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type), # Using the value of the enum instead of the enum itself, hasattr checks if the enum has a value attribute
+                "report_type": report_type.value if hasattr(report_type, 'value') else str(report_type),
+                "report_format": report_format.value if hasattr(report_format, 'value') else str(report_format),
                 "exit_code": result["StatusCode"],
                 "logs": logs,
                 "reports": {
@@ -132,7 +134,7 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
         return {
             "status": "Failed",
             "target": target_url,
-            "scan_type": scan_type,
+            "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
             "error": "Local OWASP ZAP docker image not found. Please build the image first."
         }
     # Handling other exceptions
@@ -140,14 +142,14 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
         return {
             "status": "Failed",
             "target": target_url,
-            "scan_type": scan_type,
+            "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
             "error": f"Docker API error: {str(e)}"
         }
     except Exception as e:
         return {
             "status": "Failed",
             "target": target_url,
-            "scan_type": scan_type,
+            "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
             "error": str(e)
         }
 
@@ -174,7 +176,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 return {
                     "status": "Failed",
                     "target": target_url,
-                    "scan_type": scan_type,
+                    "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
                     "error": f"Invalid report type: {report_type}. Error: {str(e)}"
                 }
 
@@ -186,7 +188,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 return {
                     "status": "Failed",
                     "target": target_url,
-                    "scan_type": scan_type,
+                    "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
                     "error": f"Invalid report format: {report_format}. Error: {str(e)}"
                 }
 
@@ -203,7 +205,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
             return {
                 "status": "Failed",
                 "target": target_url,
-                "scan_type": scan_type,
+                "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
                 "error": f"Failed to create reports directory: {str(e)}"
             }
 
@@ -274,12 +276,12 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
         return {
             "status": "Invalid scan type",
             "target": target_url,
-            "scan_type": scan_type
+            "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type)
         }
     except Exception as e:
         return {
             "status": "Failed",
             "target": target_url,
-            "scan_type": scan_type if 'scan_type' in locals() else "Unknown",
+            "scan_type": scan_type.value if hasattr(scan_type, 'value') and 'scan_type' in locals() else "Unknown",
             "error": f"Unexpected error in run_scan: {str(e)}"
         }
