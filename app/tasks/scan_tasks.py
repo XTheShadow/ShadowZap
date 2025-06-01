@@ -6,8 +6,10 @@ from typing import List # A pyton library that introduces a new data type called
 import docker
 import datetime
 import os
+import shutil # Used to copy files
 from dotenv import load_dotenv # Used to import from the .env file
 from ..services.llama_service import analyze_vulnerabilities
+from ..utils.visuals_enhancer import enhance_report
 
 load_dotenv() # Loading environment variables from .env file
 
@@ -16,9 +18,11 @@ ZAP_IMAGE = os.getenv('ZAP_IMAGE') # The Docker image for OWASP ZAP
 
 # Setting the reports directory
 REPORT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'reports', 'zap_outputs')
+ENHANCED_REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'reports', 'enhanced_reports')
 
 # Ensure the reports directory exists with proper permissions
 os.makedirs(REPORT_DIR, exist_ok=True)
+os.makedirs(ENHANCED_REPORTS_DIR, exist_ok=True)
 
 # The base shared stuff among all the scans
 def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List[str], reports_folder: str, report_name: str, report_type: ReportType, report_format: ReportFormat):
@@ -62,6 +66,8 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
             # Initializing the AI analysis result
             ai_result = None
             md_report_path = None
+            pdf_report_path = None
+            
             if report_type == ReportType.ENHANCED and os.path.exists(report_paths['xml']):
                 try:
                     # Ensure the outputs directory exists
@@ -83,6 +89,61 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                         if not os.path.exists(md_report_path):
                             print(f"Warning: Markdown report not generated at {md_report_path}")
                             md_report_path = None
+                        else:
+                            # Using the visuals_enhancer to create enhanced PDF report
+                            try:
+                                print("Generating enhanced PDF report...")
+                                enhanced_output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "reports", "enhanced")
+                                os.makedirs(enhanced_output_dir, exist_ok=True)
+                                
+                                # Getting the folder name from the reports_folder path
+                                folder_name = os.path.basename(reports_folder)
+                                
+                                # Creating the same subfolder structure in enhanced directory
+                                enhanced_subfolder = os.path.join(enhanced_output_dir, folder_name)
+                                os.makedirs(enhanced_subfolder, exist_ok=True)
+                                
+                                # Calling enhance_report to generate PDF 
+                                enhanced_result = enhance_report(
+                                    input_md_path=md_report_path,
+                                    output_dir=enhanced_subfolder,
+                                    preserve_filename=True,
+                                    output_format="pdf"  
+                                )
+                                
+                                # Geting the PDF path from the result
+                                if enhanced_result and "pdf_path" in enhanced_result:
+                                    pdf_report_path = enhanced_result["pdf_path"]
+                                    print(f"Enhanced PDF report generated at {pdf_report_path}")
+                                    
+                                    # Creating a folder in enhanced_reports directory with the same name as in zap_outputs
+                                    # Using the same folder name as in reports_folder
+                                    target_folder = os.path.join(ENHANCED_REPORTS_DIR, folder_name)
+                                    os.makedirs(target_folder, exist_ok=True)
+                                    
+                                    # Copying the XML and JSON reports to the enhanced_reports folder
+                                    for report_format in ['xml', 'json']:
+                                        if report_format in report_paths and os.path.exists(report_paths[report_format]):
+                                            target_path = os.path.join(target_folder, os.path.basename(report_paths[report_format]))
+                                            shutil.copy2(report_paths[report_format], target_path)
+                                            print(f"Copied {report_format} report to {target_path}")
+                                    
+                                    # Copying the PDF report to the enhanced_reports folder
+                                    pdf_target_path = os.path.join(target_folder, os.path.basename(pdf_report_path))
+                                    shutil.copy2(pdf_report_path, pdf_target_path)
+                                    print(f"Copied PDF report to {pdf_target_path}")
+                                    
+                                    # Updating the report paths to point to the new location
+                                    for report_format in ['xml', 'json']:
+                                        if report_format in report_paths and os.path.exists(report_paths[report_format]):
+                                            report_paths[report_format + '_enhanced'] = os.path.join(target_folder, os.path.basename(report_paths[report_format]))
+                                    
+                                    # Add enhanced PDF path
+                                    report_paths['pdf_enhanced'] = pdf_target_path
+                                else:
+                                    print("Warning: Enhanced PDF report generation failed")
+                            except Exception as e:
+                                print(f"Error generating enhanced PDF report: {e}")
                     else:
                         error_msg = ai_result.get("error", "Unknown error") if ai_result else "AI analysis failed"
                         print(f"AI analysis failed: {error_msg}")
@@ -109,6 +170,14 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
             # Add markdown report path to the output if available
             if md_report_path and os.path.exists(md_report_path):
                 scan_output["reports"]["markdown"] = md_report_path
+                
+            # Add PDF report path to the output if available
+            if pdf_report_path and os.path.exists(pdf_report_path):
+                scan_output["reports"]["pdf"] = pdf_report_path
+
+            # Add enhanced reports folder path if it was created
+            if report_type == ReportType.ENHANCED and "pdf_enhanced" in report_paths:
+                scan_output["enhanced_reports_folder"] = os.path.dirname(report_paths["pdf_enhanced"])
             
             # Add AI analysis results to the output if available
             if ai_result:
