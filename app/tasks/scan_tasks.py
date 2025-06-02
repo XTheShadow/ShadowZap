@@ -214,14 +214,22 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                         if scan_record and "web_session_id" in scan_record:
                             web_session_id = scan_record.get("web_session_id")
                             print(f"Found web_session_id: {web_session_id}")
+                            
+                        # Get the scan_id from the scan record
+                        scan_id = scan_record.get("scan_id") if scan_record else None
                 except Exception as e:
                     print(f"Error getting web_session_id: {str(e)}")
+                    scan_id = None
+                
+                # If no scan_id found generate a new one
+                if not scan_id:
+                    scan_id = f"scan_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
                 
                 # Saving the report to the database then getting the file IDs
                 print("Saving reports to database...")
                 
                 report_id = db_service.save_report(
-                    scan_id=f"scan_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    scan_id=scan_id,
                     target_url=target_url,
                     report_type=report_type.value if hasattr(report_type, 'value') else str(report_type),
                     report_format=report_format.value if hasattr(report_format, 'value') else str(report_format),
@@ -376,6 +384,10 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-J", f"{report_name}.json"
             ]
             scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            
+            # Add scan_id to the result
+            if scan_result:
+                scan_result["scan_id"] = scan_id
 
         elif scan_type == ScanType.FULL:
             # Initializing the command for the ZAP container(Full scan with enhanced capabilities)
@@ -398,6 +410,10 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-J", f"{report_name}.json"
             ]
             scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            
+            # Add scan_id to the result
+            if scan_result:
+                scan_result["scan_id"] = scan_id
 
         elif scan_type == ScanType.API_SCAN:
             # Initializing the command for the ZAP container(API scan)
@@ -412,6 +428,10 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-J", f"{report_name}.json"
             ]
             scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            
+            # Add scan_id to the result
+            if scan_result:
+                scan_result["scan_id"] = scan_id
 
         elif scan_type == ScanType.SPIDER_SCAN:
             # Initializing the command for the ZAP container(Spider scan)
@@ -426,6 +446,10 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-J", f"{report_name}.json" 
             ]
             scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            
+            # Add scan_id to the result
+            if scan_result:
+                scan_result["scan_id"] = scan_id
         else:
             # Update scan status to failed
             db_service.update_scan_status(scan_id, "Failed")
