@@ -203,15 +203,30 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                 
             # Saving the reports to the database 
             try:
+                # Get the web_session_id from the scan record (A small saving approach to link the scan to the web_session)   
+                web_session_id = None
+                try:
+                    # Get the task ID
+                    task_id = celery.current_task.request.id
+                    if task_id:
+                        # Get the scan record
+                        scan_record = db_service.scans.find_one({"task_id": task_id})
+                        if scan_record and "web_session_id" in scan_record:
+                            web_session_id = scan_record.get("web_session_id")
+                            print(f"Found web_session_id: {web_session_id}")
+                except Exception as e:
+                    print(f"Error getting web_session_id: {str(e)}")
+                
                 # Saving the report to the database then getting the file IDs
                 print("Saving reports to database...")
+                
                 report_id = db_service.save_report(
                     scan_id=f"scan_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
                     target_url=target_url,
                     report_type=report_type.value if hasattr(report_type, 'value') else str(report_type),
                     report_format=report_format.value if hasattr(report_format, 'value') else str(report_format),
                     report_paths=scan_output["reports"],
-                    ai_analysis=ai_result
+                    web_session_id=web_session_id
                 )
                 
                 print(f"Reports saved to database with ID: {report_id}")
@@ -265,11 +280,32 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
 @celery.task
 def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportType, report_format: ReportFormat):
     try:
+        # Get the task ID
+        task_id = celery.current_task.request.id
+        
+        # Create a scan record with the task ID and web_session_id to be able to link the scan to the web_session (This is a small approach similar to Register\Login)
+        scan_id = db_service.create_scan(
+            target_url=target_url,
+            scan_type=scan_type if isinstance(scan_type, str) else scan_type.value,
+            report_type=report_type if isinstance(report_type, str) else report_type.value,
+            report_format=report_format if isinstance(report_format, str) else report_format.value
+        )
+        
+        # Update the scan record with the task ID
+        db_service.scans.update_one(
+            {"scan_id": scan_id},
+            {"$set": {"task_id": task_id, "status": "Running"}}
+        )
+        
+        print(f"Created scan record with ID: {scan_id}, task ID: {task_id}")
+        
         # Converting scan_type to ScanType enum if its a string(It's passed as a string for some reason)
         if isinstance(scan_type, str):
             try:
                 scan_type = ScanType(scan_type)
             except ValueError as e:
+                # Update scan status to failed
+                db_service.update_scan_status(scan_id, "Failed")
                 return {
                     "status": "Failed",
                     "target": target_url,
@@ -282,6 +318,8 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
             try:
                 report_type = ReportType(report_type)
             except ValueError as e:
+                # Update scan status to failed
+                db_service.update_scan_status(scan_id, "Failed")
                 return {
                     "status": "Failed",
                     "target": target_url,
@@ -294,6 +332,8 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
             try:
                 report_format = ReportFormat(report_format)
             except ValueError as e:
+                # Update scan status to failed
+                db_service.update_scan_status(scan_id, "Failed")
                 return {
                     "status": "Failed",
                     "target": target_url,
@@ -311,6 +351,8 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
             os.makedirs(reports_folder, exist_ok=True)
             os.chmod(reports_folder, 0o777)   # Setting proper permissions for the reports_folder
         except Exception as e:
+            # Update scan status to failed
+            db_service.update_scan_status(scan_id, "Failed")
             return {
                 "status": "Failed",
                 "target": target_url,
@@ -385,6 +427,8 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
             ]
             scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
         else:
+            # Update scan status to failed
+            db_service.update_scan_status(scan_id, "Failed")
             return {
                 "status": "Invalid scan type",
                 "target": target_url,
@@ -393,6 +437,9 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
         
         return scan_result
     except Exception as e:
+        # Update scan status to failed if we have a scan_id
+        if 'scan_id' in locals():
+            db_service.update_scan_status(scan_id, "Failed")
         return {
             "status": "Failed",
             "target": target_url,
