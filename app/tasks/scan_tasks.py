@@ -10,8 +10,12 @@ import shutil # Used to copy files
 from dotenv import load_dotenv # Used to import from the .env file
 from ..services.llama_service import analyze_vulnerabilities
 from ..utils.visuals_enhancer import enhance_report
+from ..services.database_service import DatabaseService # Importing the DatabaseService class from the database_service.py file
+from bson.objectid import ObjectId # Used to generate a unique ID for the report
 
 load_dotenv() # Loading environment variables from .env file
+
+db_service = DatabaseService() # Initializing the DatabaseService class
 
 # Get the ZAP image name from environment variables
 ZAP_IMAGE = os.getenv('ZAP_IMAGE') # The Docker image for OWASP ZAP
@@ -164,7 +168,8 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                 "reports": {
                     report_type_key: path if os.path.exists(path) else None
                     for report_type_key, path in report_paths.items()
-                }
+                },
+                "completed": True  # Explicitly mark as completed
             }
             
             # Add markdown report path to the output if available
@@ -195,6 +200,41 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
             else:
                 # Ensure ai_analysis is always included in the output
                 scan_output["ai_analysis"] = {"success": False, "error": "AI analysis was not performed"}
+                
+            # Saving the reports to the database 
+            try:
+                # Saving the report to the database then getting the file IDs
+                print("Saving reports to database...")
+                report_id = db_service.save_report(
+                    scan_id=f"scan_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    target_url=target_url,
+                    report_type=report_type.value if hasattr(report_type, 'value') else str(report_type),
+                    report_format=report_format.value if hasattr(report_format, 'value') else str(report_format),
+                    report_paths=scan_output["reports"],
+                    ai_analysis=ai_result
+                )
+                
+                print(f"Reports saved to database with ID: {report_id}")
+                
+                # Get the file IDs from the saved report
+                saved_report = db_service.get_report(report_id)
+                if saved_report and "file_paths" in saved_report:
+                    # Extract file IDs
+                    gridfs_file_ids = {}
+                    for key, value in saved_report["file_paths"].items():
+                        if key.endswith("_id"):
+                            file_type = key[:-3]  # Remove '_id' suffix
+                            gridfs_file_ids[file_type] = value
+                    
+                    # Add file IDs to output
+                    scan_output["gridfs_file_ids"] = gridfs_file_ids
+                    scan_output["report_id"] = report_id
+                    
+                    print(f"Added GridFS file IDs to output: {gridfs_file_ids}")
+                else:
+                    print("Failed to retrieve saved report or no file paths found")
+            except Exception as e:
+                print(f"Error saving reports to database: {str(e)}")
 
             return scan_output
 
@@ -277,7 +317,10 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type),
                 "error": f"Failed to create reports directory: {str(e)}"
             }
-
+        
+        # Saving the scan results to be able to return them to the frontend
+        scan_result = None
+        
         # Running basic scan
         if scan_type == ScanType.BASIC: # Using the ScanType enum to access the values instead of hardcoding the strings
             # Initializing the command for the ZAP container(Basic scan)
@@ -290,7 +333,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-x", f"{report_name}.xml",
                 "-J", f"{report_name}.json"
             ]
-            return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
         elif scan_type == ScanType.FULL:
             # Initializing the command for the ZAP container(Full scan with enhanced capabilities)
@@ -312,7 +355,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-x", f"{report_name}.xml",
                 "-J", f"{report_name}.json"
             ]
-            return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
         elif scan_type == ScanType.API_SCAN:
             # Initializing the command for the ZAP container(API scan)
@@ -326,7 +369,7 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-x", f"{report_name}.xml",
                 "-J", f"{report_name}.json"
             ]
-            return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+            scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
 
         elif scan_type == ScanType.SPIDER_SCAN:
             # Initializing the command for the ZAP container(Spider scan)
@@ -340,13 +383,15 @@ def run_scan(target_url: AnyHttpUrl, scan_type: ScanType, report_type: ReportTyp
                 "-x", f"{report_name}.xml",
                 "-J", f"{report_name}.json" 
             ]
-            return run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
-
-        return {
-            "status": "Invalid scan type",
-            "target": target_url,
-            "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type)
-        }
+            scan_result = run_zap_scan(target_url, scan_type, scan_command, reports_folder, report_name, report_type, report_format)
+        else:
+            return {
+                "status": "Invalid scan type",
+                "target": target_url,
+                "scan_type": scan_type.value if hasattr(scan_type, 'value') else str(scan_type)
+            }
+        
+        return scan_result
     except Exception as e:
         return {
             "status": "Failed",
