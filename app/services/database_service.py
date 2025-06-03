@@ -96,11 +96,15 @@ class DatabaseService:
     # ----- Report Management Methods -----
     def save_report(self, scan_id, target_url, report_type, report_format, report_paths, web_session_id=None):
         """Save a scan report"""
-        report_id = f"report_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        timestamp = datetime.utcnow()
+        report_id = f"report_{timestamp.strftime('%Y%m%d%H%M%S')}"
         
         # Get scan details
         scan = self.get_scan(scan_id)
         scan_type = scan.get("scan_type", "") if scan else ""
+        
+        # Generating a report group ID based on timestamp - this will be used to group related reports (Time based)
+        report_group = f"group_{timestamp.strftime('%Y%m%d%H%M')}"
         
         # Creating a document with metadata
         document = {
@@ -109,8 +113,9 @@ class DatabaseService:
             "target_url": target_url,
             "report_type": report_type,
             "report_format": report_format,
-            "timestamp": datetime.utcnow(),
+            "timestamp": timestamp,
             "scan_type": scan_type,
+            "report_group": report_group,  # Add report group for organizing related files
             "file_paths": {}
         }
         
@@ -149,7 +154,8 @@ class DatabaseService:
                         "report_id": report_id,
                         "target_url": target_url,
                         "scan_type": scan_type,
-                        "report_type": report_type
+                        "report_type": report_type,
+                        "report_group": report_group  # Add report group to metadata
                     }
                     
                     # Add web_session_id to metadata only if it's provided and the report is saved
