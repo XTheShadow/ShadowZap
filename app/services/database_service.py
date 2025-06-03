@@ -195,6 +195,10 @@ class DatabaseService:
             print(f"Error retrieving file {file_id}: {e}")
             return None
     
+    def get_report(self, report_id):
+        """Get report details by ID"""
+        return self.reports.find_one({"report_id": report_id})
+    
     # ----- Session Management Methods -----
     def get_or_create_session(self, web_session_id, user_agent=None, ip_address=None):
         """Get or create a web session"""
