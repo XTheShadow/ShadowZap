@@ -112,7 +112,9 @@ def run_zap_scan(target_url: AnyHttpUrl, scan_type: ScanType, scan_command: List
                                     input_md_path=md_report_path,
                                     output_dir=enhanced_subfolder,
                                     preserve_filename=True,
-                                    output_format="pdf"  
+                                    output_format="pdf",
+                                    target_url=target_url,  # Passing the target URL directly
+                                    scan_type=scan_type.value if hasattr(scan_type, 'value') else str(scan_type)     # Passing the scan type directly
                                 )
                                 
                                 # Geting the PDF path from the result
