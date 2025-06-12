@@ -1,0 +1,998 @@
+/* Reset & Base Setup */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Courier New", Courier, monospace;
+  background-color: #111;
+  color: #f0f0f0;
+}
+
+/* Full View Container */
+.zap-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(#1e1e1e, #0a0a0a);
+}
+
+/* Navigation */
+.zap-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1b1b1b;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
+}
+
+.zap-nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+.zap-nav-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 1rem;
+}
+
+.zap-nav-title {
+  font-size: 1.8rem;
+  color: #ff3333;
+  margin: 0;
+}
+
+.zap-nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.zap-nav-link {
+  color: #bbb;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.5rem 0;
+  transition: color 0.3s ease;
+}
+
+.zap-nav-link:hover {
+  color: #fff;
+}
+
+.zap-nav-active {
+  color: #ff3333;
+  border-bottom: 2px solid #ff3333;
+}
+
+/* Main Content */
+.zap-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.zap-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Home Page */
+.zap-home {
+  text-align: center;
+}
+
+.zap-tagline {
+  font-size: 1.2rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+}
+
+/* Form Elements */
+.zap-form {
+  background-color: #1b1b1b;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+.zap-input {
+  width: 92%;
+  padding: 0.9rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  background-color: #222;
+  border: 1px solid #444;
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* Dropdowns */
+.zap-options {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.zap-options select {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  background-color: #222;
+  border: 1px solid #444;
+  color: #fff;
+  font-family: monospace;
+}
+
+/* Button Styling */
+.zap-button {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1.1rem;
+  color: white;
+  background-color: #ff3333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.zap-button:hover {
+  background-color: #e62e2e;
+}
+
+.zap-button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.zap-button-small {
+  padding: 4px 10px;
+  font-size: 13px;
+  min-width: 80px;
+}
+
+/* Highlighted button for enhanced reports */
+.zap-button-highlight {
+  background-color: #555555; /* Grey color for enhanced reports */
+  box-shadow: 0 0 8px rgba(85, 85, 85, 0.5);
+}
+
+.zap-button-highlight:hover {
+  background-color: #666666;
+}
+
+/* File button styling */
+.zap-file-button {
+  background-color: #444444; /* Grey color for file buttons */
+  color: white;
+}
+
+.zap-file-button:hover {
+  background-color: #555555;
+}
+
+/* Current Scan */
+.zap-current-scan {
+  background-color: #1b1b1b;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+}
+
+.zap-scan-details {
+  margin-bottom: 1.5rem;
+}
+
+.zap-scan-target {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+}
+
+.zap-scan-info {
+  display: flex;
+  gap: 1.5rem;
+  color: #bbb;
+}
+
+/* Realtime Status */
+.zap-realtime-status {
+  margin-top: 1.5rem;
+}
+
+.zap-progress-container {
+  height: 20px;
+  background-color: #222;
+  border-radius: 10px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.zap-progress-bar {
+  height: 100%;
+  background-color: #ff3333;
+  transition: width 0.5s ease-in-out;
+}
+
+.zap-progress-error {
+  background-color: #ff5500;
+}
+
+.zap-error-message {
+  color: #ff5500;
+  margin-top: 1rem;
+}
+
+.zap-success-message {
+  color: #00cc66;
+  margin-top: 1rem;
+}
+
+/* History Page */
+.zap-history-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.zap-history h2 {
+  color: #ff3333;
+  margin-bottom: 1.5rem;
+}
+
+.zap-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zap-history-item {
+  background-color: #1b1b1b;
+  padding: 1rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.zap-history-info {
+  flex: 1;
+}
+
+.zap-history-target {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.zap-history-details {
+  display: flex;
+  gap: 1rem;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.zap-history-type {
+  color: #ff9933;
+}
+
+.zap-history-date {
+  color: #7799ff;
+}
+
+.zap-history-status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-right: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.zap-status-completed {
+  background-color: #00663399;
+  color: #00cc66;
+}
+
+.zap-status-failed {
+  background-color: #66000099;
+  color: #ff5500;
+}
+
+.zap-status-running {
+  background-color: #33339999;
+  color: #9999ff;
+}
+
+.zap-history-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.zap-history-button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.3s ease;
+}
+
+.zap-history-button:hover {
+  background-color: #444;
+}
+
+.zap-no-history {
+  text-align: center;
+  color: #888;
+  padding: 2rem;
+}
+
+/* Dashboard */
+.zap-dashboard h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.zap-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.zap-dashboard-card {
+  background-color: #1b1b1b;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.zap-full-width {
+  grid-column: 1 / -1;
+}
+
+.zap-dashboard-card h3 {
+  color: #ff3333;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+.zap-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.zap-stat {
+  text-align: center;
+}
+
+.zap-stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ff3333;
+}
+
+.zap-stat-label {
+  color: #bbb;
+  margin-top: 0.5rem;
+}
+
+.zap-target-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.zap-target-item {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.zap-target-item:last-child {
+  border-bottom: none;
+}
+
+/* Vulnerability Chart */
+.zap-vuln-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zap-vuln-bar {
+  display: flex;
+  align-items: center;
+}
+
+.zap-vuln-label {
+  width: 120px;
+  font-size: 0.9rem;
+}
+
+.zap-vuln-bar-container {
+  flex: 1;
+  height: 24px;
+  background-color: #222;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.zap-vuln-bar-fill {
+  height: 100%;
+  transition: width 1s ease-out;
+}
+
+.zap-vuln-count {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  text-shadow: 0 0 3px #000;
+}
+
+/* Loading */
+.zap-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .zap-nav {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .zap-nav-brand {
+    margin-bottom: 1rem;
+  }
+  
+  .zap-options {
+    flex-direction: column;
+  }
+  
+  .zap-history-item {
+    flex-direction: column;
+  }
+  
+  .zap-history-actions {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .zap-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dashboard Header */
+.zap-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.zap-dashboard-header h1 {
+  margin: 0;
+}
+
+/* History Header */
+.zap-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.zap-history-header h2 {
+  margin: 0;
+}
+
+/* Refresh Button - consolidated style */
+.zap-refresh-button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+.zap-refresh-button:hover {
+  background-color: #666;
+}
+
+.zap-refresh-button:disabled {
+  background-color: #333;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Status Indicators */
+.zap-history-status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-right: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.zap-status-success {
+  background-color: #1a5928;
+  color: #a3ffb0;
+  border: 1px solid #2c7a3a;
+}
+
+.zap-status-error {
+  background-color: #5e1a1a;
+  color: #ffb0a3;
+  border: 1px solid #7a2c2c;
+}
+
+.zap-status-running {
+  background-color: #3a5e1a;
+  color: #d6ffa3;
+  border: 1px solid #4c7a2c;
+}
+
+.zap-status-pending {
+  background-color: #5e5a1a;
+  color: #fff8a3;
+  border: 1px solid #7a762c;
+}
+
+.zap-history-session {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
+
+/* Session List */
+.zap-session-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.zap-session-item {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.zap-session-item:last-child {
+  border-bottom: none;
+}
+
+.zap-session-target {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.zap-session-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* File groups */
+.zap-file-group {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.zap-file-group h4 {
+  color: #999;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.zap-file-group:last-child {
+  border-bottom: none;
+}
+
+.zap-file-item {
+  background-color: #222;
+  padding: 0.8rem;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.zap-file-info {
+  flex: 1;
+}
+
+.zap-file-name {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.zap-file-details {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* File Grid Layout */
+.zap-file-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.zap-file-group {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.zap-file-group-header {
+  color: #ff3333;
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.zap-file-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.zap-file-card {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  height: 100%;
+  min-height: 150px;
+  position: relative;
+}
+
+.zap-file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 51, 51, 0.3);
+}
+
+.zap-file-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.zap-file-info {
+  flex-grow: 1;
+}
+
+.zap-file-name {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #ff3333;
+}
+
+.zap-file-date {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.zap-file-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #ff3333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.zap-file-button:hover {
+  background-color: #ff5555;
+}
+
+/* Improve History Item Styling */
+.zap-history-item {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.zap-history-item:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  transform: translateX(2px);
+}
+
+.zap-history-target {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #ff3333;
+}
+
+.zap-history-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.zap-history-type {
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.zap-history-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.zap-status-success {
+  background-color: rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+
+.zap-status-error {
+  background-color: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+.zap-status-running {
+  background-color: rgba(33, 150, 243, 0.3);
+  color: #2196f3;
+}
+
+.zap-status-pending {
+  background-color: rgba(255, 152, 0, 0.3);
+  color: #ff9800;
+}
+
+.zap-session-details {
+  margin-top: 2rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.zap-session-details h3 {
+  color: #ff3333;
+  margin-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Dashboard Improvements */
+.zap-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.zap-dashboard-card {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.zap-dashboard-card:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.zap-dashboard-card h3 {
+  color: #ff3333;
+  margin-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.zap-full-width {
+  grid-column: 1 / -1;
+}
+
+.zap-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+.zap-stat {
+  text-align: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+.zap-stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ff3333;
+}
+
+.zap-stat-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.5rem;
+}
+
+.zap-target-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.zap-target-item {
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.zap-target-item:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  transform: translateX(2px);
+}
+
+.zap-vuln-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zap-vuln-bar {
+  display: flex;
+  align-items: center;
+}
+
+.zap-vuln-label {
+  width: 100px;
+  text-transform: capitalize;
+}
+
+.zap-vuln-bar-container {
+  flex-grow: 1;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.zap-vuln-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.zap-vuln-count {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+}
+
+.zap-session-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.zap-session-item {
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.zap-session-item:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  transform: translateX(2px);
+}
+
+.zap-session-target {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.zap-session-date {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* General Button Improvements */
+.zap-button {
+  background-color: #ff3333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zap-button:hover {
+  background-color: #ff5555;
+}
+
+.zap-button-small {
+  padding: 4px 10px;
+  font-size: 13px;
+  min-width: 80px;
+}
+
+/* Add these new styles */
+
+/* Status header with refresh button */
+.zap-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.zap-status-header h3 {
+  margin: 0;
+}
+
+/* Scan header with new scan button */
+.zap-scan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.zap-scan-header h2 {
+  margin: 0;
+}
+
+/* Small button style */
+.zap-button-small {
+  padding: 4px 10px;
+  font-size: 13px;
+  min-width: 80px;
+}
