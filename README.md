@@ -28,7 +28,7 @@ cd ShadowZap
 ```
 
 2. Configure environment variables:
-- Create a `.env` file based on the `.testenv` template
+- Create a `.env` file based on the `.env_example` template
 - Update the environment variables with your configuration:
 ```
 # Database Configuration
