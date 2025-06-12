@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShadowZap Security Report</title>
+  <style id="custom-css">
+    /* Reset & Base Setup */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Courier New", Courier, monospace;
+      background-color: #111;
+      color: #f0f0f0;
+    }
+
+    /* Full View Container */
+    .zap-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(#1e1e1e, #0a0a0a);
+    }
+
+    /* Header */
+    .zap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1b1b1b;
+      padding: 0.8rem 2rem;
+      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
+    }
+
+    .zap-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .zap-title {
+      font-size: 1.8rem;
+      color: #ff3333;
+      margin: 0;
+    }
+
+    .zap-tagline {
+      font-size: 1.2rem;
+      color: #bbb;
+      margin-left: 1rem;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+    }
+    
+    .report-logo {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    /* Main Content */
+    .zap-main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Card Styles */
+    .zap-card {
+      background-color: #1b1b1b;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+    }
+
+    /* Section Headers */
+    h1, h2, h3, h4 {
+      color: #ff3333;
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: #bbb;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background-color: #222;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+
+    th {
+      background-color: #333;
+      color: #ff3333;
+      font-weight: bold;
+    }
+
+    /* Finding Cards */
+    .finding-card {
+      background-color: #222;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #ff3333;
+      transition: transform 0.3s ease;
+    }
+
+    .finding-card:hover {
+      transform: translateX(5px);
+    }
+
+    .finding-card.high-risk {
+      border-left-color: #ff3333;
+    }
+
+    .finding-card.medium-risk {
+      border-left-color: #ff9933;
+    }
+
+    .finding-card.low-risk {
+      border-left-color: #ffcc33;
+    }
+
+    .finding-card.informational-risk {
+      border-left-color: #33ccff;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-high {
+      background-color: #ff3333;
+      color: white;
+    }
+
+    .badge-medium {
+      background-color: #ff9933;
+      color: white;
+    }
+
+    .badge-low {
+      background-color: #ffcc33;
+      color: black;
+    }
+
+    .badge-informational {
+      background-color: #33ccff;
+      color: black;
+    }
+
+    /* Stats Section */
+    .stats-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      flex: 1 1 100px;
+      background-color: #222;
+      border-radius: 8px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      min-width: 100px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .high-stat {
+      color: #ff3333;
+    }
+
+    .medium-stat {
+      color: #ff9933;
+    }
+
+    .low-stat {
+      color: #ffcc33;
+    }
+    
+    .informational-stat {
+      color: #33ccff;
+    }
+
+    /* URL list styling */
+    .url-list {
+      background-color: #333;
+      padding: 0.25rem 0.4rem;
+      border-radius: 0.375rem;
+      margin: 0.25rem 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.75rem;
+      word-break: break-all;
+      line-height: 1.2;
+      color: #00ff88;
+    }
+
+    /* Evidence styling */
+    .evidence-block {
+      background-color: #333;
+      border-left: 3px solid #666;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #00ff88;
+    }
+
+    /* Links */
+    a {
+      color: #ff3333;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #ff6666;
+      text-decoration: underline;
+    }
+
+    /* Code blocks */
+    pre {
+      background-color: #333;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      color: #00ff88;
+      font-size: 0.9rem;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* Footer */
+    .zap-footer {
+      background-color: #1b1b1b;
+      padding: 1rem 2rem;
+      text-align: center;
+      color: #bbb;
+      font-size: 0.9rem;
+      box-shadow: 0 -2px 10px rgba(255, 0, 0, 0.2);
+    }
+    
+    /* Glossary terms */
+    .glossary-term {
+      font-weight: 600;
+      color: #ff3333;
+    }
+  </style>
+</head>
+<body>
+  <div class="zap-wrapper">
+    <header class="zap-header">
+      <div class="zap-brand">
+        <img src="${hacker_icon_base64}" alt="ShadowZap Logo" class="report-logo">
+        <h1 class="zap-title">ShadowZap</h1>
+        <div class="zap-tagline">Uncover the Shadows. Test. Secure. Repeat.</div>
+      </div>
+      <div>
+        <span id="report-date">${report_date}</span>
+      </div>
+    </header>
+
+    <main class="zap-main">
+      <!-- Executive Summary -->
+      <section class="zap-card">
+        <h1>Executive Summary</h1>
+        <p>This report presents the findings of an automated security assessment conducted on <strong>${target_url}</strong> using ShadowZap, an advanced penetration testing tool.</p>
+        
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value high-stat">${high_count}</div>
+            <div class="stat-label">High Risk</div>
+            <div style="font-size: 0.8rem;">Critical Impact</div>
+            <div style="font-size: 0.75rem; margin-top: 0.25rem;">Immediate action</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value medium-stat">${medium_count}</div>
+            <div class="stat-label">Medium Risk</div>
+            <div style="font-size: 0.8rem;">Moderate Impact</div>
+            <div style="font-size: 0.75rem; margin-top: 0.25rem;">30 day timeline</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value low-stat">${low_count}</div>
+            <div class="stat-label">Low Risk</div>
+            <div style="font-size: 0.8rem;">Limited Impact</div>
+            <div style="font-size: 0.75rem; margin-top: 0.25rem;">90 day timeline</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value informational-stat">${info_count}</div>
+            <div class="stat-label">Informational</div>
+            <div style="font-size: 0.8rem;">Low Impact</div>
+            <div style="font-size: 0.75rem; margin-top: 0.25rem;">For awareness</div>
+          </div>
+        </div>
+        
+        <div>
+          <h3>Key Findings</h3>
+          <p>${executive_summary}</p>
+        </div>
+      </section>
+
+      <!-- Target Information -->
+      <section class="zap-card">
+        <h2>Target Information</h2>
+        <table>
+          <tr>
+            <th>URL</th>
+            <td>${target_url}</td>
+          </tr>
+          <tr>
+            <th>Scan Type</th>
+            <td>${scan_type}</td>
+          </tr>
+          <tr>
+            <th>Report Date</th>
+            <td>${report_date}</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- Vulnerability Findings -->
+      <section class="zap-card">
+        <h2>Vulnerability Findings</h2>
+        
+        <!-- Conditionally show findings based on content -->
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            // For high findings
+            const highFindings = document.getElementById('high-findings');
+            if (highFindings && !highFindings.innerHTML.trim()) {
+              highFindings.style.display = 'none';
+            }
+            
+            // For medium findings
+            const mediumFindings = document.getElementById('medium-findings');
+            if (mediumFindings && !mediumFindings.innerHTML.trim()) {
+              mediumFindings.style.display = 'none';
+            }
+            
+            // For low findings
+            const lowFindings = document.getElementById('low-findings');
+            if (lowFindings && !lowFindings.innerHTML.trim()) {
+              lowFindings.style.display = 'none';
+            }
+            
+            // For info findings
+            const infoFindings = document.getElementById('info-findings');
+            if (infoFindings && !infoFindings.innerHTML.trim()) {
+              infoFindings.style.display = 'none';
+            }
+          });
+        </script>
+        
+        <div id="high-findings">${high_findings}</div>
+        <div id="medium-findings">${medium_findings}</div>
+        <div id="low-findings">${low_findings}</div>
+        <div id="info-findings">${info_findings}</div>
+      </section>
+      
+      <!-- Glossary -->
+      <section class="zap-card" id="glossary-section">
+        <h2>Glossary</h2>
+        <div id="glossary-content">
+          ${glossary}
+        </div>
+      </section>
+    </main>
+
+    <footer class="zap-footer">
+      <p>Generated by ShadowZap - Automated Penetration Testing Tool</p>
+    </footer>
+  </div>
+</body>
+</html>

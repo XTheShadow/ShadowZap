@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShadowZap Security Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style id="custom-css">
+    body { 
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #1b1b1b;
+      color: #f0f0f0;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      /* Print-specific settings */
+      size: A4 portrait;
+      font-size: 11pt;
+    }
+    
+    .container { 
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      box-sizing: border-box;
+      background: radial-gradient(#1e1e1e, #0a0a0a);
+    }
+    
+    .header {
+      width: 100%;
+      background: linear-gradient(135deg, #333 0%, #222 100%);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem 0.5rem 0 0;
+      box-shadow: 0 2px 8px rgba(204, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+    }
+    
+    .report-logo {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .card {
+      background-color: #1b1b1b;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.25rem;
+      page-break-inside: avoid;
+      max-width: 800px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .card:first-child {
+      margin-top: 0 !important;
+    }
+    
+    .finding-card {
+      background-color: #222;
+      padding: 0.75rem 1rem;
+      padding-top: 0.5rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #3b82f6;
+      page-break-inside: avoid;
+    }
+    
+    /* Findings group */
+    .findings-group {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 2rem;
+      page-break-after: always;
+    }
+    
+    /* Remove margin-top from the first finding in each group */
+    .finding-card:first-child {
+      margin-top: 0 !important;
+    }
+    
+    .finding-card.high-risk {
+      border-left-color: #ff3333;
+    }
+    
+    .finding-card.medium-risk {
+      border-left-color: #ff9933;
+    }
+    
+    .finding-card.low-risk {
+      border-left-color: #ffcc33;
+    }
+    
+    .finding-card.informational-risk {
+      border-left-color: #33ccff;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #ff3333;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.35rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.65rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 0.85rem;
+      margin-bottom: 0.45rem;
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      color: #bbb;
+      margin-top: 0.85rem;
+      margin-bottom: 0.6rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      background-color: #222;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid #444;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background-color: #333;
+      font-weight: 600;
+      color: #ff3333;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-high {
+      background-color: #ff3333;
+      color: white;
+    }
+
+    .badge-medium {
+      background-color: #ff9933;
+      color: white;
+    }
+
+    .badge-low {
+      background-color: #ffcc33;
+      color: black;
+    }
+    
+    .badge-informational {
+      background-color: #33ccff;
+      color: black;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      flex: 1 1 100px;
+      background-color: #222;
+      border-radius: 8px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      min-width: 100px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .high-stat {
+      color: #ff3333;
+    }
+
+    .medium-stat {
+      color: #ff9933;
+    }
+
+    .low-stat {
+      color: #ffcc33;
+    }
+    
+    .informational-stat {
+      color: #33ccff;
+    }
+
+    .chart-container {
+      height: 250px;
+      margin-bottom: 1.25rem;
+      background-color: #222;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    pre {
+      background-color: #333;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      margin: 0.75rem 0;
+      color: #00ff88;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      background-color: #333;
+      color: #00ff88;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+    }
+
+    /* Add more compact styling for findings */
+    .finding-card p {
+      margin-top: 0.3rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+    }
+    
+    .finding-card .description p {
+      font-size: 0.85rem;
+    }
+    
+    .finding-card h3 {
+      margin-top: 0.175rem;
+      margin-bottom: 0.1rem;
+      font-size: 1.1rem;
+    }
+    
+    .finding-card .url-list,
+    .finding-card .evidence-block {
+      margin-top: 0.4rem;
+      margin-bottom: 0.4rem;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    /* Evidence styling */
+    .evidence-block {
+      background-color: #333;
+      border-left: 3px solid #666;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #00ff88;
+    }
+
+    /* URL list styling */
+    .url-list {
+      background-color: #333;
+      padding: 0.25rem 0.4rem;
+      border-radius: 0.375rem;
+      margin: 0.25rem 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.75rem;
+      word-break: break-all;
+      line-height: 1.2;
+    }
+
+    /* Glossary terms */
+    .glossary-term {
+      font-weight: 600;
+      color: #ff3333;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-left: 0.5rem;
+    }
+
+    /* Risk exposure card styling */
+    .risk-exposure-card {
+      background-color: #222;
+      padding: 0.75rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 1rem;
+      background-color: #1b1b1b;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 -2px 10px rgba(255, 0, 0, 0.1);
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 0.75rem;
+      }
+      .stats-row {
+        flex-direction: column;
+      }
+    }
+
+    /* Add print-specific styles */
+    @media print {
+      @page {
+        height: 88%;
+        size: A4 portrait;
+        margin: 0.75cm;
+      }
+      @page :first {
+        height: 82%;
+        size: A4 portrait;
+        margin: 0.75cm;
+      }
+
+      
+      body {
+        font-size: 11pt;
+        background-color: #1b1b1b !important;
+        color: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      
+      .container {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        background: #1b1b1b !important;
+      }
+
+      .card {
+        break-inside: avoid;
+        margin-top: 0;
+        box-shadow: none;
+        border: 1px solid #333;
+        background-color: #1b1b1b !important;
+      }
+      
+      .header {
+        margin-top: 0.05cm;
+        margin-bottom: 0.05cm;
+        width: auto;
+        page-break-after: avoid;
+        background: linear-gradient(135deg, #333 0%, #222 100%) !important;
+      }
+
+      .finding-card {
+        box-shadow: none;
+        border-bottom: 1px solid #333;
+        page-break-inside: avoid;
+        background-color: #222 !important;
+        color: #f0f0f0 !important;
+      }
+
+      h1, h2, h3, h4 {
+        color: #ff3333 !important;
+      }
+
+      table, th, td {
+        border-color: #444 !important;
+        background-color: #222 !important;
+        color: #f0f0f0 !important;
+      }
+
+      th {
+        background-color: #333 !important;
+        color: #ff3333 !important;
+      }
+
+      .stat-card {
+        background-color: #222 !important;
+      }
+
+      pre, code, .evidence-block, .url-list {
+        background-color: #333 !important;
+        color: #00ff88 !important;
+      }
+
+      .risk-exposure-card {
+        background-color: #222 !important;
+      }
+
+      .footer {
+        background-color: #1b1b1b !important;
+        color: #888 !important;
+        page-break-before: avoid !important;
+        page-break-inside: avoid !important;
+        page-break-after: always !important;
+      }
+
+      h2 {
+        page-break-after: avoid;
+      }
+
+      h3, h4 {
+        page-break-after: avoid;
+      }
+
+      /* Ensure reasonable space for content */
+      p, table, ul, ol, pre, .evidence-block, .url-list {
+        page-break-inside: avoid;
+      }
+
+      /* Ensure findings start on a new page */
+      #detailed-findings {
+        page-break-before: always;
+        margin-top: 0.3cm;
+      }
+      
+      #detailed-findings h2 {
+        margin-bottom: 0.3cm;
+      }
+      
+      /* Ensure 3 findings per page */
+      .findings-group {
+        page-break-after: always;
+        margin-top: 0.8cm;
+      }
+
+      /* Don't force page break after the last group */
+      .findings-group.last-group {
+        page-break-after: avoid !important;
+      }
+    }
+
+    #detailed-findings.card {
+      padding-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-container">
+        <img src="${hacker_icon_base64}" alt="ShadowZap Logo" class="report-logo">
+      </div>
+      <h1>ShadowZap Security Report</h1>
+    </div>
+    
+    <div class="card">
+      <!-- Enhanced Vulnerability Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number high-stat" id="high-count-cell">${high_count}</div>
+          <div class="stat-label">High Risk</div>
+          <div class="stat-impact high-impact" style="font-size: 0.8rem;">Critical Impact</div>
+          <div style="font-size: 0.75rem; margin-top: 0.25rem;">Immediate action</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number medium-stat" id="medium-count-cell">${medium_count}</div>
+          <div class="stat-label">Medium Risk</div>
+          <div class="stat-impact medium-impact" style="font-size: 0.8rem;">Moderate Impact</div>
+          <div style="font-size: 0.75rem; margin-top: 0.25rem;">30 day timeline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number low-stat" id="low-count-cell">${low_count}</div>
+          <div class="stat-label">Low Risk</div>
+          <div class="stat-impact low-impact" style="font-size: 0.8rem;">Limited Impact</div>
+          <div style="font-size: 0.75rem; margin-top: 0.25rem;">90 day timeline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number informational-stat" id="info-count-cell">${info_count}</div>
+          <div class="stat-label">Informational</div>
+          <div class="stat-impact informational-impact" style="font-size: 0.8rem;">Low Impact</div>
+          <div style="font-size: 0.75rem; margin-top: 0.25rem;">For awareness</div>
+        </div>
+      </div>
+      
+      <!-- Security Posture Overview -->
+      <div style="margin: 20px 0;">
+        <h3 style="margin-bottom: 0.75rem;">Security Posture Overview</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div class="risk-exposure-card" style="flex: 1; min-width: 250px;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Risk Exposure</h4>
+            <div style="height: 8px; background: #333; border-radius: 4px; margin: 0.5rem 0 0.75rem 0; overflow: hidden;">
+              <div id="risk-exposure-bar" style="height: 100%; background: linear-gradient(to right, #ff3333, #ff9933, #ffcc33); width: 65%;"></div>
+            </div>
+            <div style="font-size: 0.8rem;">Based on vulnerability count and severity</div>
+          </div>
+          <!-- Remediation Priority card -->
+          <div class="risk-exposure-card" style="flex: 1; min-width: 250px;">
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Remediation Priority</h4>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+              <div style="text-align: center; flex: 1;">
+                <div style="font-weight: 600; color: #ff3333; font-size: 0.8rem;">Critical</div>
+                <div style="font-size: 1.1rem; font-weight: 700;" id="critical-count">${high_count}</div>
+              </div>
+              <div style="text-align: center; flex: 1;">
+                <div style="font-weight: 600; color: #ff9933; font-size: 0.8rem;">Important</div>
+                <div style="font-size: 1.1rem; font-weight: 700;" id="important-count">${medium_count}</div>
+              </div>
+              <div style="text-align: center; flex: 1;">
+                <div style="font-weight: 600; color: #ffcc33; font-size: 0.8rem;">Moderate</div>
+                <div style="font-size: 1.1rem; font-weight: 700;" id="moderate-count">${low_count}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Target Information -->
+      <div style="margin: 20px 0;">
+        <h3 style="margin-bottom: 0.75rem;">Target Information</h3>
+        <table>
+          <tr>
+            <th>URL</th>
+            <td>${target_url}</td>
+          </tr>
+          <tr>
+            <th>Scan Type</th>
+            <td>${scan_type}</td>
+          </tr>
+          <tr>
+            <th>Report Date</th>
+            <td>${report_date}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Executive Summary Section -->
+    <div class="card">
+      <h2>Executive Summary</h2>
+      <div id="exec-summary">${executive_summary}</div>
+    </div>
+
+    <!-- Detailed Findings Section -->
+    <div id="detailed-findings" class="card">
+      <h2>Detailed Findings</h2>
+      
+      <!-- All findings in one section -->
+      ${pdf_findings_html}
+      
+      <!-- Footer -->
+      <div class="footer" style="margin-top: 2rem; page-break-before: avoid; page-break-after: always;">
+        <p>Generated by ShadowZap - Automated Penetration Testing Tool</p>
+      </div>
+      
+      <!-- This empty div ensures nothing follows after the footer -->
+      <div style="display: none; page-break-before: always;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Function to update vulnerability counts and calculate risk exposure
+    function updateVulnerabilityCounts(high, medium, low) {
+      // Ensure values are valid numbers or default to 0
+      const highCount = parseInt(high) || 0;
+      const mediumCount = parseInt(medium) || 0;
+      const lowCount = parseInt(low) || 0;
+      
+      // Update stats
+      try {
+        // Critical count
+        document.getElementById('critical-count').textContent = high;
+        document.getElementById('important-count').textContent = medium;
+        document.getElementById('moderate-count').textContent = low;
+        
+        // Calculate weighted risk score (high=3, medium=2, low=1)
+        const total = highCount + mediumCount + lowCount;
+        if (total > 0) {
+          const weightedScore = Math.min(100, Math.max(0, ((highCount * 3) + (mediumCount * 2) + lowCount) / (total * 3) * 100));
+          document.getElementById('risk-exposure-bar').style.width = weightedScore.toFixed(1) + '%';
+        } else {
+          document.getElementById('risk-exposure-bar').style.width = '0%';
+        }
+      } catch (error) {
+        console.error('Error updating vulnerability counts:', error);
+      }
+    }
+    
+    // Add styling to findings
+    function styleFindings() {
+      const findings = document.querySelectorAll('.finding-card');
+      findings.forEach(finding => {
+        // Add risk level class based on content
+        if (finding.innerHTML.includes('Risk Level: High') || finding.innerHTML.includes('badge-high')) {
+          finding.classList.add('high-risk');
+        } else if (finding.innerHTML.includes('Risk Level: Medium') || finding.innerHTML.includes('badge-medium')) {
+          finding.classList.add('medium-risk');
+        } else if (finding.innerHTML.includes('Risk Level: Informational') || finding.innerHTML.includes('badge-informational')) {
+          finding.classList.add('informational-risk');
+        } else {
+          finding.classList.add('low-risk');
+        }
+      });
+    }
+    
+    // Initialize the page when loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get initial values from the stat cards
+      const high = document.getElementById('high-count-cell').textContent;
+      const medium = document.getElementById('medium-count-cell').textContent;
+      const low = document.getElementById('low-count-cell').textContent;
+      
+      // Update vulnerability counts
+      updateVulnerabilityCounts(high, medium, low);
+      
+      // Style findings
+      styleFindings();
+    });
+  </script>
+</body>
+</html>
