@@ -1,0 +1,49 @@
+# Environment variables
+.env
+.env.*
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Database files
+*.rdb
+dump.rdb
+
+# Reports and outputs
+reports/outputs/*
+reports/final/*
+reports/zap_outputs/*
+reports/enhanced_reports/*
+!reports/outputs/.gitkeep
+!reports/final/.gitkeep
+!reports/zap_outputs/.gitkeep
+!reports/enhanced_reports/.gitkeep
+
+# Logs
+*.log
+
+# Docker
+.docker/
+
+# Frontend build artifacts
+FrontEnd/shadowzap-frontend/node_modules/
+FrontEnd/shadowzap-frontend/build/
+FrontEnd/shadowzap-frontend/.pnp
+FrontEnd/shadowzap-frontend/.pnp.js
+FrontEnd/shadowzap-frontend/coverage/
+FrontEnd/shadowzap-frontend/.DS_Store
+FrontEnd/shadowzap-frontend/npm-debug.log*
+FrontEnd/shadowzap-frontend/yarn-debug.log*
+FrontEnd/shadowzap-frontend/yarn-error.log*
