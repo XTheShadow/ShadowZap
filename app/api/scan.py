@@ -946,6 +946,7 @@ async def get_scan_by_session(session_id: str):
             
         logger.info(f"Found scan for session {session_id}: {scan.get('scan_id')}, task_id: {scan.get('task_id')}")
         return scan
+    
     except HTTPException:
         raise
     except Exception as e:
