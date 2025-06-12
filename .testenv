@@ -1,0 +1,21 @@
+# Environment Variables
+
+
+# Database Credentials
+MONGODB_URI=mongodb://localhost:27017/YOUR_DATABASE
+MONGODB_DB=YOUR_DATABASE_NAME
+
+
+# Redis credintals
+REDIS_URL=redis://localhost:6379/0
+
+
+# Service Configuration
+ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:stable
+ZAP_API_URL=http://localhost:8080
+
+# Llama Configuration
+Llama_API_KEY= REPLACE_WITH_YOUR_API_KEY
+
+# Logging
+LOG_LEVEL=INFO
