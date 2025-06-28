@@ -41,7 +41,7 @@ CELERY_BROKER_URL=redis://localhost:6379
 CELERY_RESULT_BACKEND=redis://localhost:6379
 
 # Docker Configuration
-ZAP_IMAGE=owasp/zap2docker-stable
+ZAP_IMAGE=ghcr.io/zaproxy/zaproxy:stable
 
 # API Keys
 Llama_API_KEY=your_llama_api_key_here
@@ -65,7 +65,7 @@ docker-compose up -d
 
 ## Running the Application
 
-1. Start the FastAPI server:
+1. Start the FastAPI server, Redis, and Celery:
 ```bash
 # On Windows
 start_services.bat
